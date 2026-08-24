@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: edutech-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/edutech}
+    username: ${DB_USER:edutech}
+    password: ${DB_PASSWORD:edutech}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8080}

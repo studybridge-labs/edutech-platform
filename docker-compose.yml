@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: edutech-postgres
+
+    environment:
+      POSTGRES_DB: edutech
+      POSTGRES_USER: edutech
+      POSTGRES_PASSWORD: edutech
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - edutech-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edutech -d edutech"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+volumes:
+  edutech-postgres-data:
