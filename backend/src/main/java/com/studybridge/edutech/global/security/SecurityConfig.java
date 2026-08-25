@@ -2,48 +2,48 @@ package com.studybridge.edutech.global.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * 애플리케이션의 HTTP Security 정책을 설정합니다.
  *
- * <p>현재 API는 JWT 기반 Stateless 인증 구조를 목표로 하므로
- * 서버 Session을 생성하지 않습니다.</p>
- *
- * <p>회원가입과 로그인 등 인증 이전에 필요한 API는
- * 인증 없이 접근할 수 있도록 허용합니다.</p>
+ * <p>JWT 기반 Stateless REST API를 기준으로 구성하며,
+ * Frontend 애플리케이션에서 Backend API를 호출할 수 있도록
+ * CORS 정책을 함께 관리합니다.</p>
  */
 @Configuration
 public class SecurityConfig {
 
-    /**
-     * HTTP 요청에 대한 인증 및 보안 정책을 구성합니다.
-     *
-     * @param http Spring Security HTTP 설정 객체
-     * @return 구성된 SecurityFilterChain
-     * @throws Exception Security 설정 과정에서 발생할 수 있는 예외
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 /**
-                 * 현재는 Access Token을 Authorization Header로 전달하는
-                 * Stateless REST API 구조이므로 CSRF를 비활성화합니다.
+                 * CorsConfigurationSource에서 정의한
+                 * CORS 정책을 Spring Security에 적용합니다.
+                 */
+                .cors(Customizer.withDefaults())
+
+                /**
+                 * JWT 기반 Stateless API 구조이므로
+                 * 현재 단계에서는 CSRF를 비활성화합니다.
                  *
-                 * Refresh Token을 HttpOnly Cookie로 구현하는 단계에서는
-                 * Refresh API의 CSRF 방어 전략을 다시 구성합니다.
+                 * Refresh Token Cookie를 구현할 때
+                 * CSRF 보호 전략을 다시 검토합니다.
                  */
                 .csrf(AbstractHttpConfigurer::disable)
 
                 /**
-                 * 서버 HTTP Session을 사용하지 않습니다.
-                 *
-                 * JWT 인증에서는 요청마다 Token을 검증하므로
-                 * JSESSIONID 기반 Session을 유지할 필요가 없습니다.
+                 * 서버 Session을 생성하지 않습니다.
                  */
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -60,5 +60,52 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable);
 
         return http.build();
+    }
+
+    /**
+     * Frontend에서 Backend API를 호출할 수 있도록
+     * 허용 Origin, HTTP Method, Header를 정의합니다.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(
+                List.of("http://localhost:5173")
+        );
+
+        configuration.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE",
+                        "OPTIONS"
+                )
+        );
+
+        configuration.setAllowedHeaders(
+                List.of("*")
+        );
+
+        /**
+         * 현재 회원가입에서는 Cookie 인증을 사용하지 않으므로 false입니다.
+         *
+         * Refresh Token을 HttpOnly Cookie로 구현할 때
+         * true로 변경하고 Origin 정책도 함께 검토합니다.
+         */
+        configuration.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/api/**",
+                configuration
+        );
+
+        return source;
     }
 }
