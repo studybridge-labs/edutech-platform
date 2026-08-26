@@ -1,6 +1,11 @@
 plugins {
+    // Java 프로젝트 컴파일 및 테스트 기능을 제공합니다.
     id 'java'
+
+    // Spring Boot 애플리케이션 실행, 패키징, bootRun 등의 기능을 제공합니다.
     id 'org.springframework.boot' version '4.1.1'
+
+    // Spring 생태계 라이브러리들의 버전 호환성을 관리합니다.
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -10,29 +15,105 @@ description = 'backend'
 
 java {
     toolchain {
+        // 개발 환경에 설치된 JDK 버전과 관계없이
+        // 프로젝트는 Java 17을 기준으로 컴파일합니다.
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
 repositories {
+    // 프로젝트 의존성을 Maven Central Repository에서 조회합니다.
     mavenCentral()
 }
 
 dependencies {
+
+    /*
+     * =========================
+     * Persistence / Database
+     * =========================
+     */
+
+    // Spring Data JPA와 Hibernate를 사용하여
+    // Entity 기반으로 PostgreSQL 데이터에 접근합니다.
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+    // PostgreSQL JDBC Driver입니다.
+    // 애플리케이션 실행 시 실제 PostgreSQL DB와 연결할 때 사용합니다.
     runtimeOnly 'org.postgresql:postgresql'
+
+
+    /*
+     * =========================
+     * Security / Authentication
+     * =========================
+     */
+
+    // Spring Security를 사용하여
+    // 인증(Authentication)과 인가(Authorization)를 처리합니다.
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Google, Kakao, Naver 등 OAuth2 기반 소셜 로그인을 구현할 때 사용합니다.
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+
+
+    /*
+     * =========================
+     * JWT
+     * =========================
+     */
+
+    // JWT 생성 및 검증에 사용하는 JJWT의 공개 API입니다.
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+
+    // JJWT의 실제 JWT 생성/검증 구현체입니다.
+    // 컴파일 시 직접 사용할 필요가 없으므로 runtimeOnly로 관리합니다.
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+
+    // JWT Payload의 JSON 직렬화/역직렬화를 Jackson으로 처리합니다.
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+
+    /*
+     * =========================
+     * Web / Validation
+     * =========================
+     */
+
+    // @NotBlank, @Email, @Size 등의 Bean Validation을 사용합니다.
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Spring MVC 기반 REST API를 구현합니다.
+    // Controller, RequestMapping, JSON HTTP 요청/응답 등을 제공합니다.
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+
+    /*
+     * =========================
+     * Test
+     * =========================
+     */
+
+    // JPA Repository 및 Entity 관련 테스트 기능을 제공합니다.
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+
+    // OAuth2 Client 관련 Security 테스트를 지원합니다.
     testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client-test'
+
+    // Spring Security 인증/인가 테스트를 지원합니다.
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+
+    // Validation 관련 테스트 기능을 제공합니다.
     testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+
+    // MockMvc 등 Spring MVC Controller 테스트 기능을 제공합니다.
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
+    // JUnit Platform 실행에 필요한 Launcher입니다.
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
+    // JUnit 5 기반 테스트를 실행합니다.
     useJUnitPlatform()
 }
