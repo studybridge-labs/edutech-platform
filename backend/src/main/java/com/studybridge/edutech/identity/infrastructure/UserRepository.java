@@ -3,6 +3,7 @@ package com.studybridge.edutech.identity.infrastructure;
 import com.studybridge.edutech.identity.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -14,12 +15,12 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     /**
-     * 이메일 기준으로 사용자가 이미 존재하는지 확인합니다.
-     *
-     * <p>이메일은 대소문자를 구분하지 않고 비교합니다.</p>
-     *
-     * @param email 확인할 이메일
-     * @return 동일한 이메일 사용자가 존재하면 true
+     * 회원가입 시 이메일 중복 여부를 확인합니다.
      */
     boolean existsByEmailIgnoreCase(String email);
+
+    /**
+     * 로그인 시 이메일을 기준으로 사용자를 조회합니다.
+     */
+    Optional<User> findByEmailIgnoreCase(String email);
 }

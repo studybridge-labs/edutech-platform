@@ -51,7 +51,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/auth/signup"
+                                "/api/v1/auth/signup",
+                                "/api/v1/auth/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -91,12 +92,13 @@ public class SecurityConfig {
         );
 
         /**
-         * 현재 회원가입에서는 Cookie 인증을 사용하지 않으므로 false입니다.
+         * 로그인 시 Refresh Token을 HttpOnly Cookie로 전달하므로
+         * Credential을 포함한 Cross-Origin 요청을 허용합니다.
          *
-         * Refresh Token을 HttpOnly Cookie로 구현할 때
-         * true로 변경하고 Origin 정책도 함께 검토합니다.
+         * allowedOrigins는 "*"가 아니라
+         * 신뢰할 수 있는 Frontend Origin만 명시해야 합니다.
          */
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();

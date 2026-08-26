@@ -1,6 +1,8 @@
 package com.studybridge.edutech.global.exception;
 
+import com.studybridge.edutech.identity.application.exception.AccountNotActiveException;
 import com.studybridge.edutech.identity.application.exception.EmailAlreadyExistsException;
+import com.studybridge.edutech.identity.application.exception.InvalidCredentialsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -72,6 +74,44 @@ public class GlobalExceptionHandler {
                         ErrorResponse.of(
                                 errorCode,
                                 message,
+                                traceId
+                        )
+                );
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(
+            InvalidCredentialsException exception
+    ) {
+        String traceId = UUID.randomUUID().toString();
+
+        ErrorCode errorCode =
+                ErrorCode.INVALID_CREDENTIALS;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(
+                        ErrorResponse.of(
+                                errorCode,
+                                traceId
+                        )
+                );
+    }
+
+    @ExceptionHandler(AccountNotActiveException.class)
+    public ResponseEntity<ErrorResponse> handleAccountNotActive(
+            AccountNotActiveException exception
+    ) {
+        String traceId = UUID.randomUUID().toString();
+
+        ErrorCode errorCode =
+                ErrorCode.ACCOUNT_NOT_ACTIVE;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(
+                        ErrorResponse.of(
+                                errorCode,
                                 traceId
                         )
                 );
