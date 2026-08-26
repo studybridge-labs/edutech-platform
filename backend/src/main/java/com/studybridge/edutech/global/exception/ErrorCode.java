@@ -20,6 +20,18 @@ public enum ErrorCode {
             HttpStatus.CONFLICT,
             "EMAIL_ALREADY_EXISTS",
             "이미 사용 중인 이메일입니다."
+    ),
+
+    INVALID_CREDENTIALS(
+            HttpStatus.UNAUTHORIZED,
+            "INVALID_CREDENTIALS",
+            "이메일 또는 비밀번호가 올바르지 않습니다."
+    ),
+
+    ACCOUNT_NOT_ACTIVE(
+            HttpStatus.FORBIDDEN,
+            "ACCOUNT_NOT_ACTIVE",
+            "현재 사용할 수 없는 계정입니다."
     );
 
     private final HttpStatus status;
