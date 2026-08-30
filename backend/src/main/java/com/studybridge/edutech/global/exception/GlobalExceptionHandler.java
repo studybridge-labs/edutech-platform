@@ -3,6 +3,7 @@ package com.studybridge.edutech.global.exception;
 import com.studybridge.edutech.identity.application.exception.AccountNotActiveException;
 import com.studybridge.edutech.identity.application.exception.EmailAlreadyExistsException;
 import com.studybridge.edutech.identity.application.exception.InvalidCredentialsException;
+import com.studybridge.edutech.identity.application.exception.InvalidRefreshTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -106,6 +107,25 @@ public class GlobalExceptionHandler {
 
         ErrorCode errorCode =
                 ErrorCode.ACCOUNT_NOT_ACTIVE;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(
+                        ErrorResponse.of(
+                                errorCode,
+                                traceId
+                        )
+                );
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRefreshToken(
+            InvalidRefreshTokenException exception
+    ) {
+        String traceId = UUID.randomUUID().toString();
+
+        ErrorCode errorCode =
+                ErrorCode.INVALID_REFRESH_TOKEN;
 
         return ResponseEntity
                 .status(errorCode.getStatus())

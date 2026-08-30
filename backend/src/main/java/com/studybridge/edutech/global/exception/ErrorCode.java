@@ -32,6 +32,12 @@ public enum ErrorCode {
             HttpStatus.FORBIDDEN,
             "ACCOUNT_NOT_ACTIVE",
             "현재 사용할 수 없는 계정입니다."
+    ),
+
+    INVALID_REFRESH_TOKEN(
+            HttpStatus.UNAUTHORIZED,
+            "INVALID_REFRESH_TOKEN",
+            "유효하지 않은 인증 세션입니다."
     );
 
     private final HttpStatus status;

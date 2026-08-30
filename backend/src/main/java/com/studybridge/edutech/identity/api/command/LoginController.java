@@ -5,11 +5,13 @@ import com.studybridge.edutech.identity.api.command.dto.LoginRequest;
 import com.studybridge.edutech.identity.api.command.dto.LoginResponse;
 import com.studybridge.edutech.identity.application.command.LoginResult;
 import com.studybridge.edutech.identity.application.command.LoginService;
+import com.studybridge.edutech.identity.application.command.RefreshService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.studybridge.edutech.identity.application.command.LogoutService;
 
 /**
  * LOCAL 로그인 API를 제공합니다.
@@ -27,13 +29,19 @@ public class LoginController {
 
     private final LoginService loginService;
     private final JwtProperties jwtProperties;
+    private final RefreshService refreshService;
+    private final LogoutService logoutService;
 
     public LoginController(
             LoginService loginService,
-            JwtProperties jwtProperties
+            JwtProperties jwtProperties,
+            RefreshService refreshService,
+            LogoutService logoutService
     ) {
         this.loginService = loginService;
         this.jwtProperties = jwtProperties;
+        this.refreshService = refreshService;
+        this.logoutService = logoutService;
     }
 
     /**
@@ -94,6 +102,71 @@ public class LoginController {
                         jwtProperties.refreshTokenExpiration()
                 )
 
+                .build();
+    }
+
+    /**
+     * HttpOnly Cookie의 Refresh Token을 이용하여
+     * Access Token과 Refresh Token을 재발급합니다.
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(
+            @CookieValue(
+                    name = REFRESH_TOKEN_COOKIE_NAME,
+                    required = false
+            )
+            String refreshToken
+    ) {
+        LoginResult result =
+                refreshService.refresh(refreshToken);
+
+        ResponseCookie refreshTokenCookie =
+                createRefreshTokenCookie(
+                        result.refreshToken()
+                );
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        refreshTokenCookie.toString()
+                )
+                .body(result.response());
+    }
+
+
+
+    /**
+     * 현재 Refresh Token과 연결된 인증 세션을 종료합니다.
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @CookieValue(
+                    name = REFRESH_TOKEN_COOKIE_NAME,
+                    required = false
+            )
+            String refreshToken
+    ) {
+        logoutService.logout(refreshToken);
+
+        ResponseCookie deletedCookie =
+                ResponseCookie
+                        .from(
+                                REFRESH_TOKEN_COOKIE_NAME,
+                                ""
+                        )
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/api/v1/auth")
+                        .sameSite("Lax")
+                        .maxAge(0)
+                        .build();
+
+        return ResponseEntity
+                .noContent()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        deletedCookie.toString()
+                )
                 .build();
     }
 }
