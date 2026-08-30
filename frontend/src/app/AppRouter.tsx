@@ -1,19 +1,47 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import DashboardPage from "../pages/DashboardPage";
+import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 /**
- * 애플리케이션의 URL과 페이지를 연결합니다.
+ * 애플리케이션의 URL과 Page를 연결합니다.
  */
 function AppRouter() {
     return (
         <Routes>
-            <Route path="/signup" element={<SignupPage />} />
+            {/* 인증 없이 접근 가능한 Page */}
+            <Route
+                path="/login"
+                element={<LoginPage />}
+            />
 
-    {/* 아직 홈 화면이 없으므로 임시로 회원가입 페이지로 이동합니다. */}
-    <Route path="/" element={<Navigate to="/signup" replace />} />
-    </Routes>
-);
+            <Route
+                path="/signup"
+                element={<SignupPage />}
+            />
+
+            {/* 인증된 사용자만 접근 가능한 Page */}
+            <Route element={<ProtectedRoute />}>
+                <Route
+                    path="/dashboard"
+                    element={<DashboardPage />}
+                />
+            </Route>
+
+            {/* 기본 진입점 */}
+            <Route
+                path="/"
+                element={
+                    <Navigate
+                        to="/login"
+                        replace
+                    />
+                }
+            />
+        </Routes>
+    );
 }
 
 export default AppRouter;
