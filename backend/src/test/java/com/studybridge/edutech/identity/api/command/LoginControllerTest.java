@@ -1,11 +1,12 @@
-package com.studybridge.edutech.identity.application.command;
+package com.studybridge.edutech.identity.api.command;
 
 import com.studybridge.edutech.global.exception.GlobalExceptionHandler;
 import com.studybridge.edutech.global.security.SecurityConfig;
 import com.studybridge.edutech.global.security.jwt.JwtProperties;
-import com.studybridge.edutech.identity.api.command.LoginController;
 import com.studybridge.edutech.identity.api.command.dto.LoginRequest;
 import com.studybridge.edutech.identity.api.command.dto.LoginResponse;
+import com.studybridge.edutech.identity.application.command.LoginResult;
+import com.studybridge.edutech.identity.application.command.LoginService;
 import com.studybridge.edutech.identity.application.exception.InvalidCredentialsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.studybridge.edutech.identity.application.command.LogoutService;
+import com.studybridge.edutech.identity.application.command.RefreshService;
 
 /**
  * LOCAL 로그인 API의 HTTP 요청과 응답을 검증합니다.
@@ -46,6 +49,12 @@ class LoginControllerTest {
 
     @MockitoBean
     private JwtProperties jwtProperties;
+
+    @MockitoBean
+    private RefreshService refreshService;
+
+    @MockitoBean
+    private LogoutService logoutService;
 
     @Test
     @DisplayName("정상 로그인 요청은 Access Token과 Refresh Token Cookie를 반환한다")
