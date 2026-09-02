@@ -1,5 +1,12 @@
 package com.studybridge.edutech.global.exception;
 
+import com.studybridge.edutech.curriculum.application.exception.InvalidQuestionAnswerException;
+import com.studybridge.edutech.curriculum.application.exception.PassageNotFoundException;
+import com.studybridge.edutech.curriculum.application.exception.QuestionAlreadyAttemptedException;
+import com.studybridge.edutech.curriculum.application.exception.QuestionInactiveException;
+import com.studybridge.edutech.curriculum.application.exception.QuestionNotFoundException;
+import com.studybridge.edutech.curriculum.application.exception.SubjectNotFoundException;
+import com.studybridge.edutech.curriculum.application.exception.UnitNotFoundException;
 import com.studybridge.edutech.identity.application.exception.AccountNotActiveException;
 import com.studybridge.edutech.identity.application.exception.EmailAlreadyExistsException;
 import com.studybridge.edutech.identity.application.exception.InvalidCredentialsException;
@@ -135,6 +142,120 @@ public class GlobalExceptionHandler {
                                 traceId
                         )
                 );
+    }
+
+    /**
+     * 존재하지 않는 과목을 조회한 경우 처리합니다.
+     */
+    @ExceptionHandler(SubjectNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSubjectNotFound(
+            SubjectNotFoundException exception
+    ) {
+        return notFound(ErrorCode.SUBJECT_NOT_FOUND, exception);
+    }
+
+    /**
+     * 존재하지 않는 단원을 조회한 경우 처리합니다.
+     */
+    @ExceptionHandler(UnitNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUnitNotFound(
+            UnitNotFoundException exception
+    ) {
+        return notFound(ErrorCode.UNIT_NOT_FOUND, exception);
+    }
+
+    /**
+     * 존재하지 않는 지문을 조회한 경우 처리합니다.
+     */
+    @ExceptionHandler(PassageNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePassageNotFound(
+            PassageNotFoundException exception
+    ) {
+        return notFound(ErrorCode.PASSAGE_NOT_FOUND, exception);
+    }
+
+    /**
+     * 존재하지 않는 문제를 조회한 경우 처리합니다.
+     */
+    @ExceptionHandler(QuestionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleQuestionNotFound(
+            QuestionNotFoundException exception
+    ) {
+        return notFound(ErrorCode.QUESTION_NOT_FOUND, exception);
+    }
+
+    /**
+     * 비활성화된 문제에 접근한 경우 처리합니다.
+     */
+    @ExceptionHandler(QuestionInactiveException.class)
+    public ResponseEntity<ErrorResponse> handleQuestionInactive(
+            QuestionInactiveException exception
+    ) {
+        String traceId = createTraceId();
+
+        ErrorCode errorCode = ErrorCode.QUESTION_INACTIVE;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode, traceId));
+    }
+
+    /**
+     * 문제 유형에 맞지 않는 답안이 제출된 경우 처리합니다.
+     */
+    @ExceptionHandler(InvalidQuestionAnswerException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidQuestionAnswer(
+            InvalidQuestionAnswerException exception
+    ) {
+        String traceId = createTraceId();
+
+        ErrorCode errorCode = ErrorCode.INVALID_QUESTION_ANSWER;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode, traceId));
+    }
+
+    /**
+     * 이미 학습 기록이 있는 문제를 수정하려 한 경우 처리합니다.
+     */
+    @ExceptionHandler(QuestionAlreadyAttemptedException.class)
+    public ResponseEntity<ErrorResponse> handleQuestionAlreadyAttempted(
+            QuestionAlreadyAttemptedException exception
+    ) {
+        String traceId = createTraceId();
+
+        log.warn(
+                "학습 기록이 있는 문제 수정 시도. traceId={}",
+                traceId
+        );
+
+        ErrorCode errorCode = ErrorCode.QUESTION_ALREADY_ATTEMPTED;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode, traceId));
+    }
+
+    /**
+     * 리소스를 찾을 수 없는 예외에 대한 공통 응답을 생성합니다.
+     */
+    private ResponseEntity<ErrorResponse> notFound(
+            ErrorCode errorCode,
+            RuntimeException exception
+    ) {
+        String traceId = createTraceId();
+
+        log.warn(
+                "리소스 조회 실패. traceId={}, code={}, detail={}",
+                traceId,
+                errorCode.getCode(),
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode, traceId));
     }
 
     /**

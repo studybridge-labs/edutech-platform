@@ -38,6 +38,50 @@ public enum ErrorCode {
             HttpStatus.UNAUTHORIZED,
             "INVALID_REFRESH_TOKEN",
             "유효하지 않은 인증 세션입니다."
+    ),
+
+    // ===== Curriculum =====
+
+    SUBJECT_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "SUBJECT_NOT_FOUND",
+            "과목을 찾을 수 없습니다."
+    ),
+
+    UNIT_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "UNIT_NOT_FOUND",
+            "단원을 찾을 수 없습니다."
+    ),
+
+    PASSAGE_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "PASSAGE_NOT_FOUND",
+            "지문을 찾을 수 없습니다."
+    ),
+
+    QUESTION_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "QUESTION_NOT_FOUND",
+            "문제를 찾을 수 없습니다."
+    ),
+
+    QUESTION_INACTIVE(
+            HttpStatus.CONFLICT,
+            "QUESTION_INACTIVE",
+            "비활성화된 문제입니다."
+    ),
+
+    INVALID_QUESTION_ANSWER(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_QUESTION_ANSWER",
+            "문제 유형에 맞지 않는 답안입니다."
+    ),
+
+    QUESTION_ALREADY_ATTEMPTED(
+            HttpStatus.CONFLICT,
+            "QUESTION_ALREADY_ATTEMPTED",
+            "이미 학습 기록이 있는 문제는 수정할 수 없습니다."
     );
 
     private final HttpStatus status;
