@@ -1,5 +1,7 @@
 package com.studybridge.edutech.global.security;
 
+import com.studybridge.edutech.global.security.jwt.JwtAuthenticationFilter;   // ★ 추가
+import com.studybridge.edutech.global.security.jwt.JwtTokenProvider;          // ★ 추가
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -7,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;   // ★ 추가
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -22,6 +25,18 @@ import java.util.List;
  */
 @Configuration
 public class SecurityConfig {
+
+    /**
+     * ★ 추가: JWT 인증 필터가 토큰 검증에 사용합니다.
+     */
+    private final JwtTokenProvider jwtTokenProvider;
+
+    /**
+     * ★ 추가: 생성자 주입
+     */
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -55,8 +70,21 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout"
-                                ).permitAll()
+                        ).permitAll()
                         .anyRequest().authenticated()
+                )
+
+                /**
+                 * ★ 추가
+                 * 매 요청마다 Authorization 헤더의 Access Token을 검증하고,
+                 * 유효하면 SecurityContext에 인증 정보를 저장합니다.
+                 *
+                 * @Component로 등록하지 않고 여기서 직접 생성하여
+                 * Security 필터 체인에만 한 번 등록합니다.
+                 */
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtTokenProvider),
+                        UsernamePasswordAuthenticationFilter.class
                 )
 
                 .formLogin(AbstractHttpConfigurer::disable)
