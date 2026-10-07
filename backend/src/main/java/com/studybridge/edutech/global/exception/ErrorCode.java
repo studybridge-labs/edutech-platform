@@ -38,6 +38,28 @@ public enum ErrorCode {
             HttpStatus.UNAUTHORIZED,
             "INVALID_REFRESH_TOKEN",
             "유효하지 않은 인증 세션입니다."
+    ),
+
+    /**
+     * ★ 추가
+     * 보호된 API에 Access Token 없이, 또는 유효하지 않은 Access Token으로 요청한 경우
+     * (Security 필터 단계의 AuthenticationEntryPoint에서 사용)
+     */
+    ACCESS_TOKEN_INVALID(
+            HttpStatus.UNAUTHORIZED,
+            "ACCESS_TOKEN_INVALID",
+            "인증이 필요합니다."
+    ),
+
+    /**
+     * ★ 추가
+     * 인증은 되었지만 해당 API에 접근할 권한이 없는 경우
+     * (Security 필터 단계의 AccessDeniedHandler에서 사용)
+     */
+    FORBIDDEN(
+            HttpStatus.FORBIDDEN,
+            "FORBIDDEN",
+            "접근 권한이 없습니다."
     );
 
     private final HttpStatus status;
