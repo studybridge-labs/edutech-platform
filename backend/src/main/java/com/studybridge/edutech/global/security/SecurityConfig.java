@@ -1,7 +1,7 @@
 package com.studybridge.edutech.global.security;
 
-import com.studybridge.edutech.global.security.handler.JsonAccessDeniedHandler;        // ★ 1-3
-import com.studybridge.edutech.global.security.handler.JsonAuthenticationEntryPoint;   // ★ 1-3
+import com.studybridge.edutech.global.security.handler.JsonAccessDeniedHandler;
+import com.studybridge.edutech.global.security.handler.JsonAuthenticationEntryPoint;
 import com.studybridge.edutech.global.security.jwt.JwtAuthenticationFilter;
 import com.studybridge.edutech.global.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -35,17 +35,17 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * ★ 1-3: 401/403 응답을 JSON으로 작성할 때 사용합니다.
+     * 1-3: 401/403 응답을 JSON으로 작성할 때 사용합니다.
      * Spring Boot가 자동으로 만들어 둔 Bean(Jackson 3)을 주입받습니다.
      */
     private final ObjectMapper objectMapper;
 
     public SecurityConfig(
             JwtTokenProvider jwtTokenProvider,
-            ObjectMapper objectMapper                     // ★ 1-3
+            ObjectMapper objectMapper
     ) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.objectMapper = objectMapper;                 // ★ 1-3
+        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -86,14 +86,13 @@ public class SecurityConfig {
                                 "/api/v1/auth/logout"
                         ).permitAll()
 
-                        // ★ 1-3: 관리자 API는 ROLE_ADMIN 권한이 있어야 접근 가능
+                        // 1-3: 관리자 API는 ROLE_ADMIN 권한이 있어야 접근 가능
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
 
                 /**
-                 * ★ 1-3
                  * Security 필터 단계에서 발생한 인증/인가 실패를
                  * 공통 ErrorResponse(JSON) 형식으로 응답합니다.
                  * - 인증 안 됨 (토큰 없음/유효하지 않음) → 401

@@ -1,10 +1,10 @@
 package com.studybridge.edutech.global.security.jwt;
 
-import com.studybridge.edutech.global.security.AuthUser;     // ★ 추가
-import com.studybridge.edutech.identity.domain.Role;          // ★ 추가
+import com.studybridge.edutech.global.security.AuthUser;
+import com.studybridge.edutech.identity.domain.Role;
 import com.studybridge.edutech.identity.domain.User;
-import io.jsonwebtoken.Claims;                                // ★ 추가
-import io.jsonwebtoken.JwtException;                          // ★ 추가
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
-import java.util.UUID;                                        // ★ 추가
+import java.util.UUID;
 
 /**
  * JWT Access Token을 생성하고 검증합니다.
@@ -24,7 +24,7 @@ import java.util.UUID;                                        // ★ 추가
 public class JwtTokenProvider {
 
     /**
-     * ★ 추가: Token 종류를 나타내는 claim 값.
+     * Token 종류를 나타내는 claim 값.
      * 생성과 검증에서 같은 값을 쓰도록 상수로 묶는다. (오타 방지)
      */
     private static final String TOKEN_TYPE_ACCESS = "access";
@@ -73,7 +73,7 @@ public class JwtTokenProvider {
                 /**
                  * Refresh Token 등 다른 Token과 구별하기 위한 Claim입니다.
                  */
-                .claim("type", TOKEN_TYPE_ACCESS)          // ★ 변경: "access" → 상수
+                .claim("type", TOKEN_TYPE_ACCESS)
 
                 .issuedAt(Date.from(issuedAt))
                 .expiration(Date.from(expiresAt))
@@ -88,7 +88,6 @@ public class JwtTokenProvider {
     }
 
     /**
-     * ★ 추가
      * Access Token을 검증하고, 토큰에 담긴 사용자 정보를 꺼냅니다.
      *
      * <p>검증 순서</p>
