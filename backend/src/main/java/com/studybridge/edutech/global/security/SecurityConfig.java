@@ -4,6 +4,7 @@ import com.studybridge.edutech.global.security.handler.JsonAccessDeniedHandler;
 import com.studybridge.edutech.global.security.handler.JsonAuthenticationEntryPoint;
 import com.studybridge.edutech.global.security.jwt.JwtAuthenticationFilter;
 import com.studybridge.edutech.global.security.jwt.JwtTokenProvider;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -79,6 +80,13 @@ public class SecurityConfig {
                  * 위에서부터 순서대로 비교하여 처음 일치한 규칙을 적용합니다.
                  */
                 .authorizeHttpRequests(auth -> auth
+                        // #11: 서버 내부의 에러 페이지 재요청(ERROR dispatch → /error)은 인증 없이 통과시킨다.
+                        // - 원래 요청(REQUEST)은 이미 아래 규칙으로 인증/인가 검사를 마쳤고,
+                        //   ERROR 요청은 그 요청에서 난 에러의 응답을 만드는 단계일 뿐이다.
+                        // - 이 규칙이 없으면 처리되지 않은 예외(400, 404, 405, 500 등)가
+                        //   /error 재요청에서 Security에 막혀 전부 401로 바뀌어 나간다.
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+
                         .requestMatchers(
                                 "/api/v1/auth/signup",
                                 "/api/v1/auth/login",
