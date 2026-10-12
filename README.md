@@ -668,6 +668,8 @@ edutech-platform
 
 Frontend(React + TypeScript)는 별도 저장소 [edutech-frontend](https://github.com/studybridge-labs/edutech-frontend)에서 관리합니다.
 
+---
+
 # ⚙️ Getting Started (Local)
 
 ## 요구 사항
