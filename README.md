@@ -651,9 +651,7 @@ Managed PostgreSQL
 ```text
 edutech-platform
 │
-├── backend
-│
-├── frontend
+├── backend               # Spring Boot API 서버
 │
 ├── docs
 │   ├── requirements.md
@@ -662,8 +660,75 @@ edutech-platform
 │   ├── api-spec.md
 │   └── security.md
 │
+├── docker-compose.yml    # 로컬 개발용 PostgreSQL
+├── .env.example          # 환경변수 목록 (예시)
 ├── .gitignore
 └── README.md
+```
+
+Frontend(React + TypeScript)는 별도 저장소 [edutech-frontend](https://github.com/studybridge-labs/edutech-frontend)에서 관리합니다.
+
+---
+
+# ⚙️ Getting Started (Local)
+
+## 요구 사항
+
+```text
+Java 17
+Docker Desktop
+```
+
+## 1. PostgreSQL 실행
+
+프로젝트 루트에서 실행합니다.
+
+```bash
+docker compose up -d
+```
+
+- 접속 정보: `localhost:5433` (DB / 계정 / 비밀번호: `edutech`)
+
+## 2. 환경변수 설정
+
+`JWT_SECRET`은 기본값이 없으므로 **반드시 설정**해야 합니다. (Base64로 인코딩된 32바이트 이상의 값)
+나머지 값은 기본값이 있으며, 전체 목록은 [`.env.example`](.env.example)을 참고합니다.
+
+PowerShell (Windows):
+
+```powershell
+$bytes = New-Object byte[] 32
+[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+$env:JWT_SECRET = [Convert]::ToBase64String($bytes)
+```
+
+macOS / Linux:
+
+```bash
+export JWT_SECRET=$(openssl rand -base64 32)
+```
+
+> 환경변수는 설정한 터미널 창에서만 유효합니다. 생성한 값은 공유하거나 커밋하지 않습니다.
+
+## 3. 서버 실행
+
+```bash
+cd backend
+./gradlew bootRun        # Windows: .\gradlew.bat bootRun
+```
+
+`Started BackendApplication` 로그가 나오면 `http://localhost:8080`에서 API를 사용할 수 있습니다.
+
+## 4. 테스트
+
+```bash
+cd backend
+
+# 단위 / Controller / Security 테스트 (DB, JWT_SECRET 불필요)
+./gradlew test --tests "com.studybridge.edutech.identity.*" --tests "com.studybridge.edutech.global.*"
+
+# 전체 테스트 (1번 DB 실행 + 2번 JWT_SECRET 설정 필요)
+./gradlew test
 ```
 
 ---
@@ -863,6 +928,7 @@ AI Tutor
 
 StudyBridge Labs
 
-```text
-studybridge-labs/edutech-platform
-```
+| Repository | Description |
+|---|---|
+| [edutech-platform](https://github.com/studybridge-labs/edutech-platform) | Backend (Spring Boot) + 설계 문서 |
+| [edutech-frontend](https://github.com/studybridge-labs/edutech-frontend) | Frontend (React + TypeScript), Private |
