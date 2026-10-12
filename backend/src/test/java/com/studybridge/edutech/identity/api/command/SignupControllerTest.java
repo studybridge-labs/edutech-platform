@@ -2,6 +2,7 @@ package com.studybridge.edutech.identity.api.command;
 
 import com.studybridge.edutech.global.exception.GlobalExceptionHandler;
 import com.studybridge.edutech.global.security.SecurityConfig;
+import com.studybridge.edutech.global.security.jwt.JwtTokenProvider;
 import com.studybridge.edutech.identity.api.command.dto.SignupRequest;
 import com.studybridge.edutech.identity.api.command.dto.SignupResponse;
 import com.studybridge.edutech.identity.application.command.SignupService;
@@ -45,6 +46,9 @@ class SignupControllerTest {
 
     @MockitoBean
     private SignupService signupService;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
 
     @Test
     @DisplayName("정상적인 회원가입 요청은 201 Created를 반환한다")

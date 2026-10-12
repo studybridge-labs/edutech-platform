@@ -3,6 +3,7 @@ package com.studybridge.edutech.identity.api.command;
 import com.studybridge.edutech.global.exception.GlobalExceptionHandler;
 import com.studybridge.edutech.global.security.SecurityConfig;
 import com.studybridge.edutech.global.security.jwt.JwtProperties;
+import com.studybridge.edutech.global.security.jwt.JwtTokenProvider;
 import com.studybridge.edutech.identity.api.command.dto.LoginRequest;
 import com.studybridge.edutech.identity.api.command.dto.LoginResponse;
 import com.studybridge.edutech.identity.application.command.LoginResult;
@@ -55,6 +56,9 @@ class LoginControllerTest {
 
     @MockitoBean
     private LogoutService logoutService;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
 
     @Test
     @DisplayName("정상 로그인 요청은 Access Token과 Refresh Token Cookie를 반환한다")
