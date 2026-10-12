@@ -31,6 +31,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
  * 프로필 변경 API(PATCH /api/v1/me/profile)의 HTTP 요청과 응답을 검증합니다.
@@ -207,5 +210,57 @@ class ProfileControllerTest {
                 .andExpect(jsonPath("$.code").value("STUDENT_PROFILE_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("학생 프로필을 찾을 수 없습니다."))
                 .andExpect(jsonPath("$.traceId").exists());
+    }
+
+    @Test
+    @DisplayName("학년에 없는 값을 보내면 400 VALIDATION_ERROR 공통 형식으로 응답하고 내부 정보는 노출하지 않는다 (#11)")
+    void updateProfile_invalidGrade_returns400() throws Exception {
+        // given: Grade enum에 없는 값 → JSON을 DTO로 변환하는 단계에서 실패 (@Valid보다 앞 단계)
+        String body = """
+                {
+                  "grade": "MIDDLE_9"
+                }
+                """;
+
+        // when & then
+        mockMvc.perform(
+                        patch(PROFILE_URL)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + USER_TOKEN)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isBadRequest())
+                // 본문이 우리 공통 형식인지 확인 (핸들러가 없으면 본문이 비어 있어 여기서 실패한다)
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("요청 본문의 형식이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.traceId").exists())
+                // 응답 어디에도 내부 패키지 경로가 새어 나가면 안 된다
+                .andExpect(content().string(not(containsString("com.studybridge"))));
+
+        // 변환 단계에서 막혔으므로 Service는 호출되지 않아야 한다
+        verify(profileService, never()).updateProfile(any(), any());
+    }
+
+    @Test
+    @DisplayName("JSON 문법이 깨진 요청을 보내면 400 VALIDATION_ERROR 공통 형식으로 응답한다 (#11)")
+    void updateProfile_malformedJson_returns400() throws Exception {
+        // given: 닫는 중괄호(})가 없는 깨진 JSON
+        String body = """
+                {
+                  "nickname": "새닉네임"
+                """;
+
+        // when & then
+        mockMvc.perform(
+                        patch(PROFILE_URL)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + USER_TOKEN)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("요청 본문의 형식이 올바르지 않습니다."));
+
+        verify(profileService, never()).updateProfile(any(), any());
     }
 }

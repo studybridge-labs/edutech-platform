@@ -25,6 +25,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
+
+import static org.hamcrest.Matchers.not;
 
 /**
  * Security 설정(JWT 필터 + 401/403 처리 + ADMIN 경로 규칙)이
@@ -141,6 +145,34 @@ class SecurityConfigTest {
         mockMvc.perform(post(PERMIT_ALL_URL)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("서버 내부의 에러 재요청(ERROR dispatch)은 토큰이 없어도 401로 막지 않는다 (#11)")
+    void errorDispatch_isNotBlockedBySecurity() throws Exception {
+        // MockMvc는 실제 Tomcat처럼 /error 재요청을 스스로 하지 않으므로,
+        // 재요청 상태를 직접 만들어서 보낸다.
+        mockMvc.perform(get("/error")
+                        .with(request -> {
+                            // Tomcat이 에러 페이지로 내부 재요청할 때의 요청 종류
+                            request.setDispatcherType(DispatcherType.ERROR);
+                            // 원래 요청에서 발생한 에러의 상태 코드 (예: 잘못된 요청 본문 → 400)
+                            request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 400);
+                            return request;
+                        }))
+                // 정확한 상태 코드는 Spring Boot의 에러 처리 설정에 달려 있으므로,
+                // 이 테스트는 "Security가 401로 바꾸지 않는다"는 것만 확인한다.
+                // (실제 상태 코드는 ④ 실제 서버 확인에서 본다)
+                .andExpect(status().is(not(401)));
+    }
+
+    @Test
+    @DisplayName("클라이언트가 /error를 직접 호출하면 여전히 401을 반환한다 (경로 자체를 연 것이 아님)")
+    void directErrorPathRequest_returns401() throws Exception {
+        // 일반 요청(REQUEST)으로 /error를 호출 → ERROR dispatch 허용 규칙에 해당하지 않음
+        mockMvc.perform(get("/error"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("ACCESS_TOKEN_INVALID"));
     }
 
     /**
