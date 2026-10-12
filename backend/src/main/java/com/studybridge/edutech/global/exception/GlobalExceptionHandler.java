@@ -1,9 +1,6 @@
 package com.studybridge.edutech.global.exception;
 
-import com.studybridge.edutech.identity.application.exception.AccountNotActiveException;
-import com.studybridge.edutech.identity.application.exception.EmailAlreadyExistsException;
-import com.studybridge.edutech.identity.application.exception.InvalidCredentialsException;
-import com.studybridge.edutech.identity.application.exception.InvalidRefreshTokenException;
+import com.studybridge.edutech.identity.application.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -135,6 +132,28 @@ public class GlobalExceptionHandler {
                                 traceId
                         )
                 );
+    }
+
+    /**
+     * 요청한 사용자를 찾을 수 없는 경우 처리합니다.
+     * (예: Access Token은 유효하지만 그 사이 사용자가 삭제된 경우)
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
+            UserNotFoundException exception
+    ) {
+        String traceId = createTraceId();
+
+        log.warn(
+                "사용자 조회 실패. traceId={}",
+                traceId
+        );
+
+        ErrorCode errorCode = ErrorCode.USER_NOT_FOUND;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode, traceId));
     }
 
     /**

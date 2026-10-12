@@ -58,6 +58,16 @@ public enum ErrorCode {
             HttpStatus.FORBIDDEN,
             "FORBIDDEN",
             "접근 권한이 없습니다."
+    ),
+
+    /**
+     * 요청한 사용자를 찾을 수 없는 경우
+     * (예: Access Token은 유효하지만 그 사이 사용자가 삭제된 경우)
+     */
+    USER_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "USER_NOT_FOUND",
+            "사용자를 찾을 수 없습니다."
     );
 
     private final HttpStatus status;
