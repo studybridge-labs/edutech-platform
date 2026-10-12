@@ -215,6 +215,16 @@ Response:
 }
 ```
 
+- `grade`: 학생 프로필이 없는 계정(ADMIN 등)은 `null`
+- `linkedAccounts`: 연동된 소셜 계정 목록. 없으면 `[]` (OAuth 구현 전까지는 항상 `[]`)
+
+Failure:
+
+```text
+401 ACCESS_TOKEN_INVALID
+404 USER_NOT_FOUND
+```
+
 ---
 
 # 10. 프로필 변경
@@ -236,6 +246,29 @@ Request:
   "grade": "MIDDLE_3"
 }
 ```
+
+- 변경할 항목만 보낸다. 보내지 않거나 `null`인 항목은 기존 값을 유지한다.
+- `nickname`: 2~50자, 공백만으로는 불가
+- `grade`: `MIDDLE_1` / `MIDDLE_2` / `MIDDLE_3`
+
+Success:
+
+```http
+200 OK
+```
+
+Response: 변경 후의 내 정보 (9. 내 정보 Response와 같은 형식)
+
+Failure:
+
+```text
+400 VALIDATION_ERROR
+401 ACCESS_TOKEN_INVALID
+404 USER_NOT_FOUND
+404 STUDENT_PROFILE_NOT_FOUND
+```
+
+- `STUDENT_PROFILE_NOT_FOUND`: 학생 프로필이 없는 계정(ADMIN 등)이 `grade` 변경을 요청한 경우
 
 ---
 
@@ -761,6 +794,8 @@ INVALID_CREDENTIALS
 USER_NOT_FOUND
 USER_SUSPENDED
 USER_WITHDRAWN
+
+STUDENT_PROFILE_NOT_FOUND
 
 ACCESS_TOKEN_INVALID
 ACCESS_TOKEN_EXPIRED
