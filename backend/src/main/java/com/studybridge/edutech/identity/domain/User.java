@@ -125,6 +125,22 @@ public class User extends BaseTimeEntity {
         return email.trim().toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * 사용자의 닉네임을 변경합니다.
+     *
+     * <p>길이(2~50자)와 공백 여부는 요청 DTO(UpdateProfileRequest)에서 먼저 검증하므로,
+     * 이 메서드에는 검증된 값만 들어온다고 가정합니다.
+     * (StudentProfile.changeGrade()와 같은 방식)</p>
+     *
+     * <p>Transaction 안에서 이 메서드로 값을 바꾸면,
+     * save()를 호출하지 않아도 커밋 시점에 JPA가 UPDATE 쿼리를 실행합니다. (변경 감지)</p>
+     *
+     * @param nickname 변경할 닉네임
+     */
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public UUID getId() {
         return id;
     }

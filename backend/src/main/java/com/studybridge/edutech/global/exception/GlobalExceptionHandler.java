@@ -157,6 +157,28 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 학생 프로필이 필요한 작업인데 학생 프로필이 없는 경우 처리합니다.
+     * (예: 관리자 계정이 학년 변경을 요청한 경우)
+     */
+    @ExceptionHandler(StudentProfileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleStudentProfileNotFound(
+            StudentProfileNotFoundException exception
+    ) {
+        String traceId = createTraceId();
+
+        log.warn(
+                "학생 프로필 조회 실패. traceId={}",
+                traceId
+        );
+
+        ErrorCode errorCode = ErrorCode.STUDENT_PROFILE_NOT_FOUND;
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode, traceId));
+    }
+
+    /**
      * 오류 추적을 위한 식별자를 생성합니다.
      */
     private String createTraceId() {
